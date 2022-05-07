@@ -15,7 +15,14 @@ from tornado import gen
 from tornado.websocket import websocket_connect
 from concurrent.futures import ThreadPoolExecutor
 from tornado.concurrent import run_on_executor
+from g2p_en import G2p
 
+GRAPHEMES = None
+def graphemes():
+    global GRAPHEMES
+    if GRAPHEMES is None:
+        GRAPHEMES = G2p()
+    return GRAPHEMES
 
 def rate_limited(maxPerSecond):
     min_interval = 1.0 / float(maxPerSecond)
@@ -96,7 +103,7 @@ class MyClient():
         if response['status'] == 0:
             #print(response)
             if 'result' in response:
-                trans = response['result']['hypotheses'][0]['transcript']
+                trans = ','.join(graphemes()(response['result']['hypotheses'][0]['transcript']))
                 if response['result']['final']:
                     self.final_hyps.append(trans)
                     print(trans.replace("\n", "\\n"), end="\n")

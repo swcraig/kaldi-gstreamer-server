@@ -44,6 +44,13 @@ CONNECT_TIMEOUT = 5
 SILENCE_TIMEOUT = 5
 USE_NNET2 = False
 
+GRAPHEMES = None
+def graphemes():
+    global GRAPHEMES
+    if GRAPHEMES is None:
+        GRAPHEMES = G2p()
+    return GRAPHEMES
+
         
 class Worker():
     STATE_CREATED = 0
@@ -204,8 +211,7 @@ class Worker():
             logger.info("%s: Postprocessing (final=%s) result.."  % (self.request_id, final))
             processed_transcripts = yield self.post_process([result], blocking=False)
             if processed_transcripts:
-                g2p = G2p()
-                result = g2p(processed_transcripts[0])
+                result = ','.join(graphemes()(processed_transcripts[0]))
                 logger.info("%s: Postprocessing done." % (self.request_id))
                 event = dict(status=common.STATUS_SUCCESS,
                              segment=self.num_segments,
