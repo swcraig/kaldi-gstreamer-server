@@ -353,7 +353,8 @@ class Worker():
                             result.append(text)
                         except Exception as ex:
                             logging.exception("Error when postprocessing")
-                    return result
+                    yield result
+                    return
             except tornado.util.TimeoutError:
                 logging.info("%s: Skipping postprocessing since post-processor already in use"  % (self.request_id))
                 return None
